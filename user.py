@@ -2,12 +2,12 @@ import random
 
 class User(object):
 
-	def __init__(self, user_type=0):
+	def __init__(self, user_type=0, num_stories=10):
 		self.user_type = user_type
-		self.voting_history = []
+		self.voting_history = [0]*10
 
 	def vote(self, story_type, story_index):
-		voting_percentage = .1
+		voting_percentage = .9
 		voting_bias = .9 #Chance they will vote for their side, for cliques only
 		self.voting_history[story_index] = 0
 		if (random.random() < voting_percentage):
@@ -28,7 +28,7 @@ class User(object):
 					self.voting_history[story_index] = -1
 
 	def print_votes(self):
-		for i, vote in self.voting_history:
+		for i, vote in enumerate(self.voting_history):
 			print "%d. %d" % (i, vote)
 
 		
