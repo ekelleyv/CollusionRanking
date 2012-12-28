@@ -37,15 +37,16 @@ def report(minute):
 # run  the simulation 
 def main():
     # an array of posts and users
-    content = [0] * num_posts
-    users = []
+	content = [0] * num_posts
+	users = []
+	ranking = [0] * num_posts
     
     # ids of posts and users
-    user_id = 0
-    content_id = 0
+	user_id = 0
+	content_id = 0
     
-    # initialize the number of users, create collusions
-    for i in xrange(num_users):
+	# initialize the number of users, create collusions
+	for i in xrange(num_users):
         # determine user bias if any
 		user_bias = -1
 		user_bias_prob = random.uniform(0, 1)
@@ -60,13 +61,13 @@ def main():
 		user_id += 1
         
     # run simulation by the minute
-    iterate = 60 * 24 * num_days
-    for i in xrange(iterate):
+	iterate = 60 * 24 * num_days
+	for i in xrange(iterate):
         # create three new posts every minute
-        number_new_posts = 3
+		number_new_posts = 3
         
-        # number of new posts a minute
-        for j in xrange(number_new_posts):
+		# number of new posts a minute
+		for j in xrange(number_new_posts):
             # determine post bias if any for new post
 			post_bias = -1
 			post_bias_prob = random.uniform(0, 1)
@@ -81,9 +82,9 @@ def main():
 			content_id += 1
     
         # go through all users and see if they will upvote/downvote posts
-        for j in xrange(num_users):
+		for j in xrange(num_users):
 			var = random.uniform(0, 1)
-			if (var > 0.95):
+			if (var > 0.0):
 				# look at the past hour
 				last_hour = 60 * 3
 				if (content_id < last_hour):
@@ -95,7 +96,17 @@ def main():
 						users[j].vote(post = content[w])
     
 		# call page rank algorithm for reddit
-		if (i % 30):
+		if (i % 30 == 0 and not i == 0):
+			for j in xrange(content_id - 1):
+				#print content[j].ups
+				#print content[j].downs
+				if (content[j].post_bias == no_group):
+					print str(reddit.hot(content[j].ups, content[j].downs, content[j].date))
+				elif (content[j].post_bias == first_group):
+					print "* " + str(reddit.hot(content[j].ups, content[j].downs, content[j].date))
+				else:
+					print "$ " + str(reddit.hot(content[j].ups, content[j].downs, content[j].date))
+			return
 			report(i)
     
 if __name__ == '__main__':

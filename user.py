@@ -24,10 +24,10 @@ class User(object):
 			if (self.user_bias == 0):
 				var = random.uniform(0, 1)
 				# ignore 40% of the time
-				if (var < 40):
+				if (var < 0.40):
 					self.voting_history[post.id] = nothing
 				# upvote 30% of the time
-				elif (var < 70):
+				elif (var < 0.70):
 					self.voting_history[post.id] = upvote
 					post.upvote()
 				# downvote 30% of the time
@@ -42,10 +42,10 @@ class User(object):
 				# else downvote with probability 65%, ignore 15%, upvote 20%
 				else:
 					var = random.uniform(0, 1)
-					if (var < 65):
+					if (var < 0.40):
 						self.voting_history[post.id] = downvote
 						post.downvote()
-					elif (var < 80):
+					elif (var < 0.80):
 						self.voting_history[post.id] = nothing
 					else:
 						self.voting_history[post.id] = upvote
