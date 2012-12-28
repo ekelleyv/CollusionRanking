@@ -5,11 +5,11 @@ from user import User
 from post import Post
 
 # number of days in the simulation
-num_days = 2
+num_days = 1
 
 # number of users
 num_users = 10000
-num_posts = 8640
+num_posts = 4320
 
 # possible groups a post or user can side with
 no_group = 0
@@ -81,7 +81,17 @@ def main():
     
         # go through all users and see if they will upvote/downvote posts
         for j in xrange(num_users):
-            users[j].vote_block(time = content_id, post_array = content)
+			var = random.uniform(0, 1)
+			if (var > 0.95):
+				# look at the past hour
+				last_hour = 60 * 3
+				if (content_id < last_hour):
+					for k in xrange(content_id):
+						users[j].vote(post = content[k])
+				else:
+					for k in xrange(last_hour):
+						w = content_id - k - 1
+						users[j].vote(post = content[w])
     
 		# call page rank algorithm for reddit
 	
