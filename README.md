@@ -1,12 +1,12 @@
 CollusionRanking
 ================
 
-Final project for COS 445
+Final project for COS 445<br/>
 Diminishing influence of cliques in online ranking algorithms, such as Reddit and Hackernews.
 
-Ed Kelley
-Brian Matejek
-DJ Shuster
+- Ed Kelley
+- Brian Matejek
+- DJ Shuster
 
 Resources
 ----------------
