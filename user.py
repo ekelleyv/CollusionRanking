@@ -1,34 +1,33 @@
+# User class for simulation
 import random
 
 class User(object):
-
-	def __init__(self, user_bias):
-		self.user_bias = user_bias
-		self.voting_history = [] * 10000
-
-	def vote(self, story_type, story_index):
-		voting_percentage = .9
-		voting_bias = .9 #Chance they will vote for their side, for cliques only
-		self.voting_history[story_index] = 0
-		if (random.random() < voting_percentage):
-			if (self.user_bias == 0): #normal users
-				if (random.randint(0, 1)):
-					self.voting_history[story_index] = 1
-				else:
-					self.voting_history[story_index] = -1
-			elif (self.user_bias == story_type): #biased in favor
-				if (random.random() < voting_bias):
-					self.voting_history[story_index] = 1
-				else:
-					self.voting_history[story_index] = -1
-			elif (self.user_bias != story_type): #biased against
-				if (random.random() > voting_bias):
-					self.voting_history[story_index] = 1
-				else:
-					self.voting_history[story_index] = -1
-
-	def print_votes(self):
-		for i, vote in enumerate(self.voting_history):
-			print "%d. %d" % (i, vote)
-
+	def __init__(self, user_bias, id, num_posts):
+		self.id = id                           # unique user id
+		self.user_bias = user_bias             # is the user in a collusion
+		self.voting_history = [-2] * num_posts  # initialize a voting history array
 		
+	def vote(self, post, post_id):
+		y = 0
+		# Add previous code
+	
+	def vote_block(self, time, post_array):
+		# at most go back three hours (three hours * 60 minutes / hour * 3 posts / minute)
+		last_hour = 60 * 3
+		
+		#if (random.uniform(0, 1) < 0.75):
+		#	return
+		
+		# current number of posts 
+		current_post_max_index = time
+		
+		# look at all current posts
+		if (current_post_max_index < last_hour):
+			for i in xrange(current_post_max_index):
+				if (self.voting_history[i] == -2):
+					self.vote(post_array[i], i)
+		# look at last three hours
+		else:
+			for i in xrange(last_hour):
+				if (self.voting_history[current_post_max_index - i] == -2):
+					self.vote(post_array[current_post_max_index - i], current_post_max_index - i)

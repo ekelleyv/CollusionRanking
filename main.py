@@ -9,21 +9,22 @@ num_days = 2
 
 # number of users
 num_users = 10000
+num_posts = 8640
 
-# possible positions a post or user can take
-#no_lean = 0
-left_lean = 1
-right_lean = 2
+# possible groups a post or user can side with
+no_group = 0
+first_group = 1
+second_group = 2
 
-# probabilities of left, right, and none on posts
-#no_lean_prob = ?
-left_lean_prob = 0.90
-right_lean_prob = 0.1
+# probabilities of a post belonging to a collusive group
+no_group_prob = .85
+first_group_prob = .075
+second_group_prob = .075
 
-# probabilities of left, right, and none on users
-#user_no_lean_prob = ?
-user_left_lean_prob = 0.95
-user_right_lean_prob = 0.05
+# probabilities of users belong to collusive groups
+user_no_group_prob = .90
+user_first_group_prob = .05
+user_second_group_prob = .05
 
 # textfile with all of the reports for each minute
 textfile = file("SimulationReport.txt", "wt")
@@ -34,8 +35,8 @@ def report(minute):
 
 # run  the simulation 
 def main():
-    # an array of posts
-    content = []
+    # an array of posts and users
+    content = [0] * num_posts
     users = []
     
     # ids of posts and users
@@ -44,47 +45,46 @@ def main():
     
     # initialize the number of users, create collusions
     for i in xrange(num_users):
-        user_bias_prob = random.uniform(0, 1)
-        user_bias = -1
-        if (user_bias_prob < user_left_lean_prob):
-            user_bias = left_lean
-        #elif (user_bias_prob < user_no_lean_prob + user_left_lean_prob):
-        #    user_bias = leaf_lean
-        else:
-            user_bias = right_lean
-        users.append(User(user_bias = user_bias))
+        # determine user bias if any
+		user_bias = -1
+		user_bias_prob = random.uniform(0, 1)
+		if (user_bias_prob < user_no_group_prob):
+			user_bias = no_group
+		elif (user_bias_prob < user_no_group_prob + user_first_group_prob):
+			user_bias = first_group
+		else:
+			user_bias = second_group
+        # create a new user
+		users.append(User(user_bias = user_bias, id = user_id, num_posts = num_posts))
+		user_id += 1
         
     # run simulation by the minute
     iterate = 60 * 24 * num_days
     for i in xrange(iterate):
-        # create a variable number of posts for each minute
-        number_new_posts = random.randint(0, 5)
+        # create three new posts every minute
+        number_new_posts = 3
         
         # number of new posts a minute
         for j in xrange(number_new_posts):
             # determine post bias if any for new post
-            post_bias_prob = random.uniform(0, 1)
-            post_bias = -1
-            if (post_bias_prob < left_lean_prob):
-                post_bias = left_lean
-            #elif (post_bias_prob < no_lean_prob + left_lean_prob):
-            #    post_bias = left_lean
-            else:
-                post_bias = right_lean
-                
-            content.append(Post(post_bias = post_bias, id = content_id, time = i))
-            content_id += 1
-            
-        # have people vote on posts
+			post_bias = -1
+			post_bias_prob = random.uniform(0, 1)
+			if (post_bias_prob < no_group_prob):
+				post_bias = no_group
+			elif (post_bias_prob < no_group_prob + first_group_prob):
+				post_bias = first_group
+			else:
+				post_bias = second_group
+			# create a new post
+			content[content_id] = (Post(post_bias = post_bias, id = content_id, time = i))
+			content_id += 1
+    
+        # go through all users and see if they will upvote/downvote posts
         for j in xrange(num_users):
-            # no user votes every minute
-            
-            users[j].vote_block()
-        
-        # call current reddit page rank algorithm
-        
-        # call our new page rank algorithm
-        
+            users[j].vote_block(time = content_id, post_array = content)
+    
+		# call page rank algorithm for reddit
+	
         report(i)
     
 if __name__ == '__main__':
