@@ -50,6 +50,3 @@ class User(object):
 					else:
 						self.voting_history[post.id] = upvote
 						post.upvote()
-				
-				
-				

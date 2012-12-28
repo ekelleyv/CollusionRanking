@@ -1,9 +1,20 @@
 CollusionRanking
 ================
 
-Final project for COS 445
+Final project for COS 445<br/>
+Diminishing influence of cliques in online ranking algorithms, such as Reddit and Hackernews.
 
+- Ed Kelley
+- Brian Matejek
+- DJ Shuster
 
+Resources
+----------------
+
+<a href="http://amix.dk/blog/post/19588">Reddit Ranking algorithm</a>
+
+Git Instructions
+----------------
 How to use git:
 
 Get the project:<br/>

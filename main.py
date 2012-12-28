@@ -1,5 +1,6 @@
 # simulates multiple days of posts and users in a social content website
 import random
+import reddit
 
 from user import User
 from post import Post
@@ -31,8 +32,8 @@ textfile = file("SimulationReport.txt", "wt")
 
 # print out a report of the last minute
 def report(minute):
-    textfile.write(str(minute))
-
+    textfile.write(str(minute / 30) + '\n')
+	
 # run  the simulation 
 def main():
     # an array of posts and users
@@ -94,8 +95,8 @@ def main():
 						users[j].vote(post = content[w])
     
 		# call page rank algorithm for reddit
-	
-        report(i)
+		if (i % 30):
+			report(i)
     
 if __name__ == '__main__':
     main()
