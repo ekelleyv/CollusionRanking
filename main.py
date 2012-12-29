@@ -106,8 +106,6 @@ def main():
 					print "* " + str(reddit.hot(content[j].ups, content[j].downs, content[j].date))
 				else:
 					print "$ " + str(reddit.hot(content[j].ups, content[j].downs, content[j].date))
-			return
-			report(i)
     
 if __name__ == '__main__':
     main()
