@@ -97,17 +97,14 @@ def main():
     
 		# call page rank algorithm for reddit
 		if (i % 30 == 0 and not i == 0):
+			print "------------------------------------------"
 			for j in xrange(content_id - 1):
-				#print content[j].ups
-				#print content[j].downs
 				if (content[j].post_bias == no_group):
 					print str(reddit.hot(content[j].ups, content[j].downs, content[j].date))
 				elif (content[j].post_bias == first_group):
 					print "* " + str(reddit.hot(content[j].ups, content[j].downs, content[j].date))
 				else:
 					print "$ " + str(reddit.hot(content[j].ups, content[j].downs, content[j].date))
-			return
-			report(i)
     
 if __name__ == '__main__':
     main()

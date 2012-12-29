@@ -9,9 +9,13 @@ class Post(object):
 		self.ups = 0				# number of upvotes
 		self.downs = 0				# number of downvotes
 
-		hour = time / 60
-		min = time % 60
-		date = datetime.datetime(2013, 1, 13, hour, min)		
+		hour = time / 12
+		min = (time % 12) * 5
+		
+		day = hour / 24 + 13
+		hour = hour % 24
+		
+		date = datetime.datetime(2013, 1, day, hour, min)		
 		self.date = date			# date of the post
 		
 	def upvote(self):
