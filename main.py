@@ -1,6 +1,6 @@
 # simulates multiple days of posts and users in a social content website
 import random
-import reddit
+import sampling
 
 from user import User
 from post import Post
@@ -101,11 +101,11 @@ def main():
 				#print content[j].ups
 				#print content[j].downs
 				if (content[j].post_bias == no_group):
-					print str(reddit.hot(content[j].ups, content[j].downs, content[j].date))
+					print str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
 				elif (content[j].post_bias == first_group):
-					print "* " + str(reddit.hot(content[j].ups, content[j].downs, content[j].date))
+					print "* " + str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
 				else:
-					print "$ " + str(reddit.hot(content[j].ups, content[j].downs, content[j].date))
+					print "$ " + str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
     
 if __name__ == '__main__':
     main()
