@@ -23,26 +23,26 @@ class User(object):
 		if (self.voting_history[post.id] == -2):
 			if (self.user_bias == 0):
 				var = random.uniform(0, 1)
-				# ignore 40% of the time
-				if (var < 0.40):
+				# ignore 60% of the time
+				if (var < 0.60):
 					self.voting_history[post.id] = nothing
-				# upvote 30% of the time
-				elif (var < 0.70):
+				# upvote 25% of the time
+				elif (var < 0.85):
 					self.voting_history[post.id] = upvote
 					post.upvote()
-				# downvote 30% of the time
+				# downvote 15% of the time
 				else:
 					self.voting_history[post.id] = downvote
 					post.downvote()
 			else:
 				# if biases are the same, with 99% probability upvote
-				if (post.post_bias == self.user_bias and random.uniform(0, 1) < 0.99):
+				if (post.post_bias == self.user_bias and random.uniform(0, 1) < 0.95):
 					self.voting_history[post.id] = upvote
 					post.upvote()
-				# else downvote with probability 60%, ignore 20%, upvote 20%
+				# else downvote with probability 40%, ignore 40%, upvote 20%
 				else:
 					var = random.uniform(0, 1)
-					if (var < 0.60):
+					if (var < 0.40):
 						self.voting_history[post.id] = downvote
 						post.downvote()
 					elif (var < 0.80):

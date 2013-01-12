@@ -1,6 +1,7 @@
 # simulates multiple days of posts and users in a social content website
 import random
 import sampling
+import time
 
 from user import User
 from post import Post
@@ -9,7 +10,7 @@ from post import Post
 num_days = 1
 
 # number of users
-num_users = 10000
+num_users = 100
 num_posts = 4320
 
 # possible groups a post or user can side with
@@ -31,8 +32,8 @@ user_second_group_prob = .05
 textfile = file("SimulationReport.txt", "wt")
 
 # print out a report of the last minute
-def report(minute):
-    textfile.write(str(minute / 30) + '\n')
+#def report(minute):
+#    textfile.write(str(minute / 30) + '\n')
 	
 # run  the simulation 
 def main():
@@ -97,15 +98,35 @@ def main():
     
 		# call page rank algorithm for reddit
 		if (i % 30 == 0 and not i == 0):
-			for j in xrange(content_id - 1):
+			posts_ranking = []
+			for j in xrange(content_id - 1):	
 				#print content[j].ups
 				#print content[j].downs
-				if (content[j].post_bias == no_group):
-					print str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
-				elif (content[j].post_bias == first_group):
-					print "* " + str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
+				post_data = [sampling.hot(content[j].ups, content[j].downs, content[j].date), content[j].id]
+				posts_ranking.append(post_data)
+				
+			sorted_by_second = sorted(posts_ranking, key=lambda tup: tup[0], reverse = True)
+			for b in xrange(0, 30):
+				id = sorted_by_second[b][1]
+				if (content[id].post_bias == no_group):
+					print sorted_by_second[b][0]
+				elif (content[id].post_bias == first_group):
+					print "*" + str(sorted_by_second[b][0])
 				else:
-					print "$ " + str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
+					print "$" + str(sorted_by_second[b][0])
+			print '-------------------------------------'
+				# posts_ranking[j] = [sampling.hot(content[j].ups, content[j].downs, content[j].date), content[j].id]
+				#posts_ranking[j][0] = sampling.hot(content[j].ups, content[j].downs, content[j].date)
+				#posts_ranking[j][1] = content[j].id
+				
+				# if (content[j].post_bias == no_group):
+					# print str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
+				# elif (content[j].post_bias == first_group):
+					# print "* " + str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
+				# else:
+					# print "$ " + str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
     
 if __name__ == '__main__':
-    main()
+	start_time = time.time()
+	main()
+	print time.time() - start_time
