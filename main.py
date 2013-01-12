@@ -2,6 +2,8 @@
 import random
 import sampling
 import time
+import reddit
+import noisy
 
 from user import User
 from post import Post
@@ -61,6 +63,18 @@ def main():
 		users.append(User(user_bias = user_bias, id = user_id, num_posts = num_posts))
 		user_id += 1
         
+	no_bias_sum = 0
+	first_bias_sum = 0
+	second_bias_sum = 0
+        
+	no_bias_sum2 = 0
+	first_bias_sum2 = 0
+	second_bias_sum2 = 0		
+	
+	no_bias_sum3 = 0
+	first_bias_sum3 = 0
+	second_bias_sum3 = 0	
+	
     # run simulation by the minute
 	iterate = 60 * 24 * num_days
 	for i in xrange(iterate):
@@ -100,32 +114,87 @@ def main():
 		if (i % 30 == 0 and not i == 0):
 			posts_ranking = []
 			for j in xrange(content_id - 1):	
-				#print content[j].ups
-				#print content[j].downs
+				post_data = [reddit.hot(content[j].ups, content[j].downs, content[j].date), content[j].id]
+				posts_ranking.append(post_data)
+				
+			sorted_by_second = sorted(posts_ranking, key=lambda tup: tup[0], reverse = True)
+			
+			no_bias_number = 0
+			first_bias_number = 0
+			second_bias_number = 0
+			
+			for b in xrange(0, 30):
+				id = sorted_by_second[b][1]
+				if (content[id].post_bias == no_group):
+					no_bias_number += 1
+				elif (content[id].post_bias == first_group):
+					first_bias_number += 1
+				else:
+					second_bias_number += 1
+			no_bias_sum += no_bias_number
+			first_bias_sum += first_bias_number
+			second_bias_sum += second_bias_number
+			
+			posts_ranking = []
+			for j in xrange(content_id - 1):	
 				post_data = [sampling.hot(content[j].ups, content[j].downs, content[j].date), content[j].id]
 				posts_ranking.append(post_data)
 				
 			sorted_by_second = sorted(posts_ranking, key=lambda tup: tup[0], reverse = True)
+			
+			no_bias_number = 0
+			first_bias_number = 0
+			second_bias_number = 0
+			
 			for b in xrange(0, 30):
 				id = sorted_by_second[b][1]
 				if (content[id].post_bias == no_group):
-					print sorted_by_second[b][0]
+					no_bias_number += 1
 				elif (content[id].post_bias == first_group):
-					print "*" + str(sorted_by_second[b][0])
+					first_bias_number += 1
 				else:
-					print "$" + str(sorted_by_second[b][0])
-			print '-------------------------------------'
-				# posts_ranking[j] = [sampling.hot(content[j].ups, content[j].downs, content[j].date), content[j].id]
-				#posts_ranking[j][0] = sampling.hot(content[j].ups, content[j].downs, content[j].date)
-				#posts_ranking[j][1] = content[j].id
+					second_bias_number += 1
+			no_bias_sum2 += no_bias_number
+			first_bias_sum2 += first_bias_number
+			second_bias_sum2 += second_bias_number
+			
+			posts_ranking = []
+			for j in xrange(content_id - 1):	
+				post_data = [noisy.hot(content[j].ups, content[j].downs, content[j].date), content[j].id]
+				posts_ranking.append(post_data)
 				
-				# if (content[j].post_bias == no_group):
-					# print str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
-				# elif (content[j].post_bias == first_group):
-					# print "* " + str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
-				# else:
-					# print "$ " + str(sampling.hot(content[j].ups, content[j].downs, content[j].date))
-    
+			sorted_by_second = sorted(posts_ranking, key=lambda tup: tup[0], reverse = True)
+			
+			no_bias_number = 0
+			first_bias_number = 0
+			second_bias_number = 0
+			
+			for b in xrange(0, 30):
+				id = sorted_by_second[b][1]
+				if (content[id].post_bias == no_group):
+					no_bias_number += 1
+				elif (content[id].post_bias == first_group):
+					first_bias_number += 1
+				else:
+					second_bias_number += 1
+			no_bias_sum3 += no_bias_number
+			first_bias_sum3 += first_bias_number
+			second_bias_sum3 += second_bias_number
+			
+	total = no_bias_sum + first_bias_sum + second_bias_sum
+	print '-----Reddit-----'
+	print float(no_bias_sum) / total
+	print float(first_bias_sum) / total
+	print float(second_bias_sum) / total
+	print '----Sampling----'
+	print float(no_bias_sum2) / total
+	print float(first_bias_sum2) / total
+	print float(second_bias_sum2) / total
+	print '-----Noisy------'
+	print float(no_bias_sum3) / total
+	print float(first_bias_sum3) / total
+	print float(second_bias_sum3) / total
+	
 if __name__ == '__main__':
 	start_time = time.time()
 	main()
