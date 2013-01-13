@@ -13,6 +13,8 @@ Resources
 
 <a href="http://amix.dk/blog/post/19588">Reddit Ranking algorithm</a>
 
+<a href="http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/#numpy">Installing numpy and scipy</a>
+
 Git Instructions
 ----------------
 How to use git:

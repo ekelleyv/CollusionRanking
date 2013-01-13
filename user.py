@@ -16,6 +16,7 @@ class User(object):
 	def __init__(self, user_bias, id, num_posts):
 		self.id = id                           # unique user id
 		self.user_bias = user_bias             # is the user in a collusion
+		self.est_bias = 0
 		self.voting_history = [start] * num_posts  # initialize a voting history array
 		
 	def vote(self, post):

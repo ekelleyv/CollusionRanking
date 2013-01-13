@@ -7,6 +7,7 @@ import noisy
 
 from user import User
 from post import Post
+from identify_bias import cluster_users
 
 # number of days in the simulation
 num_days = 1
@@ -109,6 +110,9 @@ def main():
 					for k in xrange(last_hour):
 						w = content_id - k - 1
 						users[j].vote(post = content[w])
+
+		#Call indentify bias
+		cluster_users(users)
     
 		# call page rank algorithm for reddit
 		if (i % 30 == 0 and not i == 0):
