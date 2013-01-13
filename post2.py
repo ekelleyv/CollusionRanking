@@ -8,7 +8,7 @@ class Post2(object):
 		self.id = id                # id of the post
 		self.ups = 0				# number of upvotes
 		self.downs = 0				# number of downvotes
-                self.poster_id = poster_id
+		self.poster_id = poster_id
 
 		hour = time / 60
 		min = time % 60
