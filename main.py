@@ -13,7 +13,7 @@ from identify_bias import cluster_users
 num_days = 1
 
 # number of users
-num_users = 1000
+num_users = 100
 num_posts = 4320
 
 # possible groups a post or user can side with
@@ -33,14 +33,10 @@ user_second_group_prob = .025
 
 # textfile with all of the reports for each minute
 textfile = file("SimulationReport.txt", "wt")
-
-# print out a report of the last minute
-#def report(minute):
-#    textfile.write(str(minute / 30) + '\n')
 	
 # run  the simulation 
 def main():
-	for q in xrange(0, 50):
+	for q in xrange(0, 1):
 		# an array of posts and users
 		content = [0] * num_posts
 		users = []
@@ -79,10 +75,10 @@ def main():
 		
 		# run simulation by the minute
 		iterate = 60 * 24 * num_days
+		blah = 0
 		for i in xrange(iterate):
 			# create three new posts every minute
 			number_new_posts = 3
-			
 			# number of new posts a minute
 			for j in xrange(number_new_posts):
 				# determine post bias if any for new post
@@ -196,7 +192,7 @@ def main():
 		print float(no_bias_sum3) / total
 		print float(first_bias_sum3) / total
 		print float(second_bias_sum3) / total
-	
+		print no_bias_sum + first_bias_sum + second_bias_sum
 if __name__ == '__main__':
 	start_time = time.time()
 	main()
