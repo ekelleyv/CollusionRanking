@@ -2,6 +2,7 @@
 # simulates multiple days of posts and users in a social content website
 import random
 import detector
+import reddit
 import time
 
 from user2 import User2
@@ -12,7 +13,7 @@ num_days = 1
 
 # number of users
 num_users = 100
-num_posts = 4320
+num_posts = 4320 #Length of day times 3
 
 # possible groups a post or user can side with
 no_group = 0
@@ -90,6 +91,7 @@ def main():
 		iterate = 60 * 24 * num_days
 		for i in xrange(iterate):
 		# create three new posts every minute
+			# raw_input("Press Enter to continue...")
 			number_new_posts = 3
 		
 		# number of new posts a minute
@@ -103,10 +105,15 @@ def main():
 						this_post_poster_id = random.choice(nb_users).id
 					elif (post_bias_prob < no_group_prob + first_group_prob):
 						post_bias = first_group
-						this_post_poster_id = random.choice(fg_users).id
+						if (not fg_users):
+							this_post_poster_id = 0
+						else:
+							this_post_poster_id = random.choice(fg_users).id
 					else:
-						post_bias = second_group
-						this_post_poster_id = random.choice(sg_users).id
+						if (not sg_users):
+							this_post_poster_id = 0
+						else:
+							this_post_poster_id = random.choice(sg_users).id
 					# create a new post
 					content[content_id] = (Post2(post_bias = post_bias, id = content_id, time = i, poster_id = this_post_poster_id))
 					content_id += 1
@@ -128,36 +135,77 @@ def main():
 
 
 
-		# call page rank algorithm for reddit
-		if (i % 30 == 0 and not i == 0):
-				posts_ranking = []
-				for j in xrange(content_id - 1):                        
-						post_data = [detector.hot(content[j].ups, content[j].downs, content[j].date), content[j].id]
+			# call page rank algorithm for reddit
+			if (i % 30 == 0 and not i == 0):
+					#Detector
+					posts_ranking = []
+					different = 0
+					summation = 0
+					for j in xrange(content_id - 1):
+						if (content[j].alt_ups != content[j].ups):
+							different += 1
+						summation += 1
+						post_data = [detector.hot(content[j].alt_ups, content[j].alt_downs, content[j].date), content[j].id]
 						posts_ranking.append(post_data)
+					# print "Percent different == %f" % (float(different)/float(summation))
+					sorted_by_second = sorted(posts_ranking, key=lambda tup: tup[0], reverse = True)
 				
-				sorted_by_second = sorted(posts_ranking, key=lambda tup: tup[0], reverse = True)
-			
-				no_bias_number = 0
-				first_bias_number = 0
-				second_bias_number = 0
+					no_bias_number = 0
+					first_bias_number = 0
+					second_bias_number = 0
 
-				for b in xrange(0, 30):
-						id = sorted_by_second[b][1]
-						if (content[id].post_bias == no_group):
-								no_bias_number += 1
-						elif (content[id].post_bias == first_group):
-								first_bias_number += 1
-						else:
-								second_bias_number += 1
-				no_bias_sum += no_bias_number
-				first_bias_sum += first_bias_number
-				second_bias_sum += second_bias_number
+					for b in xrange(0, 30):
+							id = sorted_by_second[b][1]
+							if (content[id].post_bias == no_group):
+									no_bias_number += 1
+							elif (content[id].post_bias == first_group):
+									first_bias_number += 1
+							else:
+									second_bias_number += 1
+					no_bias_sum += no_bias_number
+					first_bias_sum += first_bias_number
+					second_bias_sum += second_bias_number
+
+					#Reddit
+					posts_ranking2 = []
+					for j in xrange(content_id - 1):                        
+							post_data2 = [reddit.hot(content[j].ups, content[j].downs, content[j].date), content[j].id]
+							posts_ranking2.append(post_data)
+					
+					sorted_by_second2 = sorted(posts_ranking2, key=lambda tup: tup[0], reverse = True)
+					
+
+					no_bias_number2 = 0
+					first_bias_number2 = 0
+					second_bias_number2 = 0
+
+					for b in xrange(0, 30):
+							id = sorted_by_second[b][1]
+							if (content[id].post_bias == no_group):
+									no_bias_number2 += 1
+							elif (content[id].post_bias == first_group):
+									first_bias_number2 += 1
+							else:
+									second_bias_number2 += 1
+					no_bias_sum2 += no_bias_number2
+					first_bias_sum2 += first_bias_number2
+					second_bias_sum2 += second_bias_number2
+
+		total = no_bias_sum + first_bias_sum + second_bias_sum
 
 		print '-------------------------------------'
 		print '-----Detector------'
-		print float(no_bias_sum3) / total
-		print float(first_bias_sum3) / total
-		print float(second_bias_sum3) / total
+		print float(no_bias_sum) / total
+		print float(first_bias_sum) / total
+		print float(second_bias_sum) / total
+
+		total = no_bias_sum2 + first_bias_sum2 + second_bias_sum2
+
+		print '-------------------------------------'
+		print '-----Reddit------'
+		print float(no_bias_sum2) / total
+		print float(first_bias_sum2) / total
+		print float(second_bias_sum2) / total
 	
 if __name__ == '__main__':
 	start_time = time.time()

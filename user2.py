@@ -25,7 +25,7 @@ class User2(object):
 	def vote(self, post, poster):
 		# if the user has not voted on this post
 		if (self.voting_history[post.id] == start):
-			if (self.user_bias == 0):
+			if (self.user_bias == no_group):
 				var = random.uniform(0, 1)
 				# ignore 60% of the time
 				if (var < 0.60):
@@ -33,23 +33,25 @@ class User2(object):
 				# upvote 25% of the time
 				elif (var < 0.85):
 					self.voting_history[post.id] = upvote
-					if (post.poster_id in self.upvote_tracker):
-												old_count = self.upvote_tracker[post.poster_id]
-												self.upvote_tracker[post.poster_id] = old_count + 1
-										else:
-												self.upvote_tracker[post.poster_id] = 1
+					if (self.upvote_tracker.has_key(post.poster_id)):
+							old_count = self.upvote_tracker[post.poster_id]
+							self.upvote_tracker[post.poster_id] = old_count + 1
+					else:
+							self.upvote_tracker[post.poster_id] = 1
 					post.upvote()
+					# print "Before, upvotes = %f, downvotes = %f" % (post.ups, post.downs)
 					detector.extend_up(self, poster)
 					detector.vote_decider_up(self, post)
+					# print "After, upvotes = %f, downvotes = %f" % (post.ups, post.downs)
 					
 				# downvote 15% of the time
 				else:
 					self.voting_history[post.id] = downvote
-					if (post.poster_id in self.upvote_tracker):
-												old_count = self.downvote_tracker[post.poster_id]
-												self.downvote_tracker[post.poster_id] = old_count + 1
-										else:
-												self.downvote_tracker[post.poster_id] = +1
+					if (self.downvote_tracker.has_key(post.poster_id)):
+							old_count = self.downvote_tracker[post.poster_id]
+							self.downvote_tracker[post.poster_id] = old_count + 1
+					else:
+							self.downvote_tracker[post.poster_id] = +1
 					post.downvote()
 					detector.extend_down(self, poster)
 					detector.vote_decider_down(self, post)
@@ -58,11 +60,11 @@ class User2(object):
 				# if biases are the same, with 99% probability upvote
 				if (post.post_bias == self.user_bias and random.uniform(0, 1) < 0.99):
 					self.voting_history[post.id] = upvote
-					if (post.poster_id in self.upvote_tracker):
-												old_count = upvote_tracker[post.poster_id]
-												self.upvote_tracker[post.poster_id] = old_count + 1
-										else:
-												self.upvote_tracker[post.poster_id] = 1
+					if (self.upvote_tracker.has_key(post.poster_id)):
+							old_count = self.upvote_tracker[post.poster_id]
+							self.upvote_tracker[post.poster_id] = old_count + 1
+					else:
+							self.upvote_tracker[post.poster_id] = 1
 					post.upvote()
 					detector.extend_up(self, poster)
 					detector.vote_decider_up(self, post)
@@ -71,25 +73,24 @@ class User2(object):
 					var = random.uniform(0, 1)
 					if (var < 0.40):
 						self.voting_history[post.id] = downvote
-												if (post.poster_id in self.upvote_tracker):
-														print self.downvote_tracker
-														old_count = self.downvote_tracker[post.poster_id]
-														self.downvote_tracker[post.poster_id] = old_count + 1
-												else:
-														self.downvote_tracker[post.poster_id] = +1
-												post.downvote()
-												detector.extend_down(self, poster)
-												detector.vote_decider_down(self, post)
+						if (self.downvote_tracker.has_key(post.poster_id)):
+								old_count = self.downvote_tracker[post.poster_id]
+								self.downvote_tracker[post.poster_id] = old_count + 1
+						else:
+								self.downvote_tracker[post.poster_id] = +1
+						post.downvote()
+						detector.extend_down(self, poster)
+						detector.vote_decider_down(self, post)
 														
 					elif (var < 0.80):
 						self.voting_history[post.id] = nothing
 					else:
 						self.voting_history[post.id] = upvote
-						if (post.poster_id in self.upvote_tracker):
-														old_count = upvote_tracker[post.poster_id]
-														self.upvote_tracker[post.poster_id] = old_count + 1
-												else:
-														self.upvote_tracker[post.poster_id] = 1
+						if (self.upvote_tracker.has_key(post.poster_id)):
+								old_count = self.upvote_tracker[post.poster_id]
+								self.upvote_tracker[post.poster_id] = old_count + 1
+						else:
+								self.upvote_tracker[post.poster_id] = 1
 						post.upvote()
 						detector.extend_up(self, poster)
 						detector.vote_decider_up(self, post)

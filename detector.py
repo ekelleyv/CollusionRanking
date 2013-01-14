@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 from math import log
 import random
+import numpy
 
 epoch = datetime(1970, 1, 1)
 noise = .20
@@ -17,45 +18,71 @@ def score(ups, downs):
 
 def extend_up(upvoter, poster):
 	for key in poster.upvote_tracker:
-			if upvoter.upvote_tracker.has_key(key):
-					oldcount = upvoter.upvote_tracker[key]
-					upvoter.upvote_tracker[key] = oldcount + poster.upvote_tracker[key]
-			else:
-					upvoter.upvote_tracker[key] = poster.upvote_tracker[key]
+		update = 0
+		if (poster.upvote_tracker[key] != 0):
+			update = log(abs(poster.upvote_tracker[key]))
+
+		if upvoter.upvote_tracker.has_key(key):
+			oldcount = upvoter.upvote_tracker[key]
+			upvoter.upvote_tracker[key] = oldcount + update
+		else:
+			upvoter.upvote_tracker[key] = update
 
 	for key in poster.downvote_tracker:
-			if upvoter.downvote_tracker.has_key(key):
-					oldcount = upvoter.downvote_tracker[key]
-					upvoter.downvote_tracker[key] = oldcount + poster.downvote_tracker[key]
-			else:
-					upvoter.downvote_tracker[key] = poster.downvote_tracker[key]
+		update = 0
+		if (poster.downvote_tracker[key] != 0):
+			update = log(abs(poster.downvote_tracker[key]))
+
+		if upvoter.downvote_tracker.has_key(key):
+			oldcount = upvoter.downvote_tracker[key]
+			upvoter.downvote_tracker[key] = oldcount + update
+		else:
+			upvoter.downvote_tracker[key] = update
 				
 def extend_down(downvoter, poster):
+	
 	for key in poster.upvote_tracker:
-			if downvoter.upvote_tracker.has_key(key):
-					oldcount = downvoter.upvote_tracker[key]
-					downvoter.upvote_tracker[key] = oldcount - poster.upvote_tracker[key]
-			else:
-					downvoter.upvote_tracker[key] = 0 - poster.upvote_tracker[key]
+		update = 0
+		if (poster.upvote_tracker[key] != 0):
+			update = log(abs(poster.upvote_tracker[key]))
+
+		# print "Update %f" % update
+		
+		if downvoter.upvote_tracker.has_key(key):
+			oldcount = downvoter.upvote_tracker[key]
+			downvoter.upvote_tracker[key] = oldcount - update
+		else:
+			downvoter.upvote_tracker[key] = 0 - update
 
 	for key in poster.downvote_tracker:
-			if downvoter.downvote_tracker.has_key(key):
-					oldcount = downvoter.downvote_tracker[key]
-					downvoter.downvote_tracker[key] = oldcount - poster.downvote_tracker[key]
-			else:
-					downvoter.downvote_tracker[key] = 0 - poster.downvote_tracker[key]
+		update = 0
+		if (poster.downvote_tracker[key] != 0):
+			update = log(abs(poster.downvote_tracker[key]))
+
+		if downvoter.downvote_tracker.has_key(key):
+			oldcount = downvoter.downvote_tracker[key]
+			downvoter.downvote_tracker[key] = oldcount - update
+		else:
+			downvoter.downvote_tracker[key] = 0 - update
 
 def vote_decider_up(user, post):
 	allups = float(sum(user.upvote_tracker.values()))
+	std = numpy.std(user.upvote_tracker.values())
+	mean = numpy.mean(user.upvote_tracker.values())
+	# print user.upvote_tracker.values()
+	# print "User %d, Allups : %f" % (user.id, allups)
 	if user.upvote_tracker.has_key(post.poster_id) and allups > 50:
-			if (user.upvote_tracker[post.poster_id] / allups > .1):
-					post.downvote()
+		if (user.upvote_tracker[post.poster_id] > mean + std):
+			post.alt_downvote()
 
 def vote_decider_down(user, post):
 	alldowns = float(sum(user.downvote_tracker.values()))
+	std = numpy.std(user.downvote_tracker.values())
+	mean = numpy.mean(user.downvote_tracker.values())
+	# print "User %d, Alldowns : %f" % (user.id, alldowns)
 	if user.downvote_tracker.has_key(post.poster_id) and alldowns > 50:
-			if (user.downvote_tracker[post.poster_id] / alldowns > .1):
-					post.upvote()                  
+		if (user.downvote_tracker[post.poster_id] > mean + std):
+			post.alt_upvote()                  
 					
 
 def hot(ups, downs, date):

@@ -8,6 +8,8 @@ class Post2(object):
 		self.id = id                # id of the post
 		self.ups = 0				# number of upvotes
 		self.downs = 0				# number of downvotes
+		self.alt_ups = 0
+		self.alt_downs = 0
 		self.poster_id = poster_id
 
 		hour = time / 60
@@ -20,7 +22,15 @@ class Post2(object):
 		self.date = date			# date of the post
 		
 	def upvote(self):
+		self.alt_upvote()
 		self.ups += 1
 
 	def downvote(self):
+		self.alt_downvote()
 		self.downs += 1
+
+	def alt_upvote(self):
+		self.alt_ups += 1
+
+	def alt_downvote(self):
+		self.alt_downs += 1
