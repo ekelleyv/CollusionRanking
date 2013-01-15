@@ -9,6 +9,8 @@
 \usepackage{epstopdf}
 \usepackage{setspace}
 
+\usepackage{algpseudocode}
+
 %Code Highlighting
 \usepackage{listings}
 \usepackage{color}
@@ -56,7 +58,7 @@
 
 % Background and Motivation
 \section{Motivation}
-In 2004, Digg launched as one of the first  popularity news display systems on the Web. Instead of just a content delivery site, Digg was a platform where anyone could submit a story and users voted to determine the order of the displayed stories. In the following years, similar sites, such as Reddit, StumbleUpon, and Hacker News, were created and have since seen a huge rise in popularity.
+In 2004, Digg launched as one of the first  popularity-based news sites on the Web. Instead of just a content delivery site, Digg was a platform where any user could submit a story and users voted to determine the order of the displayed stories. In the following years, similar sites, such as Reddit, StumbleUpon, and Hacker News, have seen a huge rise in popularity.
 
 However, due to the nature of their voting systems, these sites are highly susceptible to collusion. There have been several instances of small groups of users, typically with strong political affiliations, colluding to ``bury" or ``downvote" content they disagree with and ``digg" or ``upvote" content that aligns with their politcal views. In 2007, Muhammad Saleem, a researcher for the Search Engine Journal, published an article titled  ``The Bury Brigade Exists, and Here's My Proof," showing that there were groups of users on Digg which were ``hard at work burying any content that doesn't suit [their] ideology."\cite{wired, sej}
 
@@ -66,22 +68,86 @@ This behavior was not limited to Digg. In 2012, The Daily Dot published a story 
 
 \section{Goal}
 
-Our goal is to find an algorithm that will reduce the impact of these cliques on the ranking of stories.This algorithm must be able to perform online with a large number of users and posts. Additionally, this algorithm should produce a ranking that places the most highly voted stories to the top, while diminishing the influence of biased cliques.
+Our goal is to find an algorithm that will reduce the impact of these cliques on the ranking of stories. This algorithm must be able to perform online with a large number of users and posts. Additionally, this algorithm should produce a ranking that places the most highly voted stories to the top, while diminishing the influence of biased cliques.
+
+\section{Reddit Ranking Algorithm}
+
+For comparison, we will be using the Reddit ``Hot" Ranking algorithm. This algorithm assigns a a rating for each post which takes into account the difference between upvotes and down votes as well as the age of the post.
+
+\begin{figure}[h]
+	\centering
+	\begin{algorithmic}[1]
+	\State $s \gets (ups-down)$
+	\State $order \gets \log_{10}{\lvert s \rvert}$ \Comment{By taking log, increase impact of early votes}
+	\If {$order < 1$}
+		\State $order \gets 1$
+	\EndIf
+	\If {$s > 0$}
+		\State $sign \gets 1$
+	\ElsIf{$s < 0$}
+		\State $sign \gets -1$
+	\Else
+		\State $sign \gets 0$
+	\EndIf
+	\State $seconds \gets (now - 1134028003)$ \Comment{Time since an arbitrary date in 2005}
+	\State \Return $order + \frac{sign * seconds}{45000}$  \Comment{45000 seconds = 12.5 hours}
+	\end{algorithmic}
+	\caption{Pseudocode of Reddit's ``Hot" Ranking Algorithm}
+
+\end{figure}
+
+\section{Strategies}
+
+\subsection{Noisy Ranking}
+The Gibbard-Satterthwaite Theorem expresses the idea that all deterministic voting rules are either dictatorial or non-strategy-proof. This means that either a single individual has the power to decide the entire election, or all agents have the incentive to lie about their true preferences. Neither of these scenarios is particularly attractive in a democratic selection process, a fact that has driven discussion toward the design of more favorable voting mechanisms.
 
 
-\section{Algorithms}
+One particular strategy, set forth originally by Gibbard and extended more recently by Conitzer and Sandholm, is the use of mechanisms that use randomized approximations\cite{birrell}. These mechanisms are meant to mimic deterministic voting rules while adding a certain component of randomness. However, Gibbard also showed that these rules may only become strategy-proof in trivial scenarios. Nevertheless, the true advantage of this line of thinking is that it allows for the potential to develop voting mechanisms that may be considered Òapproximately strategy-proofÓ. Birrell and Pass first developed this term to accomodate the phenomenon that individuals tend to report their preferences honestly when tactical voting provides only a small benefit. Birrell and Pass explain this phenomenon by postulating that there exists a psychological cost to lying. For this discussion, allow this value to be defined as epsilon. For a given value of epsilon, a voting rule is defined as being Òapproximately strategy-proofÓ if the benefit of misrepresentation is less than epsilon. Insert Def. 2.1
 
-In the Reddit ranking algorithm, the difference between the number of up votes and down votes matters more than the number of up votes.  The algorithm first subtracts downs from ups and uses this difference through the rest of the algorithm.  The algorithm also takes into consideration the time of the post submission.  Content that is posted earlier on have a lower ranking score.  (cite source)
 
-\vspace{.2cm}
+Using these definitions as a framework, we sought to develop suitable randomized approximations of existing content-ranking algorithms. The first, and most simple, and of these voting rules involves adding noise to the voting process. Essentially, the algorithm introduces a certain probability of reversing each vote every time the postÕs score is reported. While this strategy may seem very simple, it provides an effective measure for combatting collusion. To begin, consider 3 types of users and posts (unbiased, bias1, bias2). Unbiased users upvote or downvote all posts using the same probability distributions, regardless of the postsÕ biases. On the other hand, biased users will favor posts of their own bias, upvoting them with much higher probability than other posts. They are also much more likely to downvote posts that do not share their bias. Once noise is introduced, there is a certain probability that the userÕs vote will counted in the opposite direction. Effectively, this reduces the overall benefit the user receives from casting his or her vote, as it is uncertain whether or not it will be cast favorably.
 
-There are two well known algorithms for eliminating the power of collusive groups over a voting system.  The  first relies on random sampling.  A random sample of votes will be taken from the total number of votes, and this sample will be extrapolated out to determine the total number of up and down votes.  This is further discussed in this document****.  We adjusted the sampling method  to work for both up and down votes, and extrapolated the data.  Our simulation and subsequent proofs show the effectiveness of this method in terms of preventing colluding groups from dominating the front page.  The next algorithm introduces noise into voting systems, and is originally discussed in the listed website****.  Our implementation takes into consideration both up and down votes and randomly flips the vote with some fixed probability.  It is also more successful than the traditional Reddit PageRank algorithm in correcting for colluding voting blocks.
+
+By following this line of thinking, noisy voting may also be a way to reduce the benefit received by mischaracterizing the userÕs preferences. In our model, this reflects the undesirable effect of collusion. By adding noise, it is possible that the benefit of collusion may be brought below the epsilon value required for a voting rule to become Òapproximately strategy proof Ò. Another way to think of this effect is to see that the noise is effectively altering the userÕs voting probability functions. In the simulations that we have run, unbiased users ignore a post with 60\% probability, upvote it with 25\% probability and downvote with 15\% probability. Essentially, the expected score for any post is $.1 * n_{unbiased}$. Biased users, however, have only a 2\% probability of ignoring a post with the same bias and a 2\% probability of downvoting it, but a 96\% probability of upvoting it. So, a biased post has an expected score of $.94 * n_{same bias}$. When viewing any other post, the biased users have a 40\% probability of ignoring it, a 40\% probability of downvoting it, and a 20\% probability of upvoting it. This means that any post has an expected score of $-.2 * n_{different bias}$. If there are two groups of biased individuals, each post will have the following expected scores:
+
+
+
+
+\begin{align}
+E(unbiased post) &= .1 * n_{unbiased} - .2 * n_{bias 1} - .2 * n_{bias 2}\\
+E(bias 1 post) &= .1 * n_{unbiased} + .94 * n_{bias 1} - .2 * n_{bias 2}\\
+E(bias 2 post) &= .1 * n_{unbiased} - .2 * n_{bias 1} + .94 * n_{bias 2}\\
+Var(unbiased post) &= .384 * n_{unbiased}^{2} + .544 * n_{bias 1}^{2} + .544 * n_{bias 2}^{2}\\
+Var(bias 1 post) &= .384 * n_{unbiased}^{2} + .079 * n_{bias 1}^{2} + .544 * n_{bias 2}^{2}\\
+Var(bias 2 post) &= .384 * n_{unbiased}^{2} + .544 * n_{bias 1}^{2} + .079* n_{bias 2}^{2}
+\end{align}
+
+
+
+
+Clearly, biased posts will always have the upper hand in this scenario. However, noisy voting helps to combat this effect. Once noise is introduced, and there is a 20\% probability for votes to be altered, unbiased users will still have a 60\% probability of ignoring a post, but will instead have a 23\% probability of having their vote recorded as an upvote and a 17\% probability of having their vote recorded as a downvote. This makes each postÕs expected score equal to $.06 * n_{unbiased}$. Biased users will still have a 2\% probability of ignoring a post of their own bias, but will instead have a 77.2\% probability of having their vote recorded as an upvote and 20.8\% chance of having it be recorded as a downvote. Now, a biased post will have an expected score of $.564 * n_{same bias}$. In addition, biased users will still have a 40\% probability of ignoring a post with a different bias, but only a 36\% probability of having their vote be recorded as a downvote and a 24\% chance of having it recorded as an upvote. Now, any post will have an expected score of $-.12 * n_{different bias}$. If there are two groups of biased individuals, each post will have the following expected scores:
+
+
+\begin{align}
+E(unbiased post) &= .06 * n_{unbiased} - .12 * n_{bias 1} - .12 * n_{bias 2}\\
+E(bias 1 post) &= .06 * n_{unbiased} + .564 * n_{bias 1} - .12 * n_{bias 2}\\
+E(bias 2 post) &= .06 * n_{unbiased} - .12 * n_{bias 1} + .564 * n_{bias 2}\\
+Var(unbiased post) &= .394 * n_{unbiased}^{2} + .580 * n_{bias 1}^{2} + .580 * n_{bias 2}^{2}\\
+Var(bias 1 post) &= .394 * n_{unbiased}^{2} + .645 * n_{bias 1}^{2} + .580 * n_{bias 2}^{2}\\
+Var(bias 2 post) &= .394 * n_{unbiased}^{2} + .580 * n_{bias 1}^{2} + .645* n_{bias 2}^{2}
+\end{align}
+
+
+Once noise is introduced, all expected scores decrease, while variances of expected scores increase. While the expected scores decrease in equal proportions for both biased and unbiased posts, the variance of biased posts increases relatively greater than that of unbiased posts. However, since these probability distribution funstions are not normal, we must plot them in order to achieve a full understanding of the results.
+
+
+Once the results are plotted, it appears that the added noise causes the biased and unbiased distributions to converge. Ultimately, this leads to a lesser likelihood for biased posts to appear on the front page than in the noseless case.
+
+\subsection{Sampling}
 
 \section{Simulations}
 
 We simulated the data over what would be an equivalent of 1 day, with 100, 300, and 1000 users.  The simulations creates posts every minute and go throughs all of the users.  The users can look at the last 3 hours worth of posts on the website (since users would rarely in real life go through many more posts than this).  Users can either consciously not vote, up vote, or down vote a post.  Once the user does this, the user will never vote again on the same post.  Every thirty minutes the page rank algorithms of Reddit, Noisy, and Sampling are called which determine which pages make the front page.  Front page is formally defined as the top 30 posts at any given time on our simulated social content website.  The number of biased posts that make the front page is calculated for each of the simulations, and the following section describes proofs from this data.
-
-\vspace{.2cm}
 
 We also ran simulations where there was only one collusive group.  In 2010, the website Digg discovered a group of users called the Digg Patriots who gained a disproportionate amount of influence over the content of the website.  We also looked at how our modified page rank algorithms handled this situation.
 
@@ -304,6 +370,10 @@ This gives a p-value just under .04. We can therefore justify saying that the sa
 \section{Discussion and Conclusion}
 
 Social content sites are susceptible to collusive groups that try to manipulate which posts reach the front page.  Even with the two methods that are collusion proof, groups can still gain a disproportionate number of front page posts.  The trouble arises from the fact the algorithms are run online - the interactions between users and how they will vote in the future are unknown.  In my voting schemes, all the votes are tallied at once, but on a social content website, votes come in at different intervals.  A page might make the front page shortly after being posted, with less than 10\% of the total websites users seeing the content.  Another issue with collusive groups is that their members tend to vote in force - on both posts that favor and oppose their opinions.  Casual users of a social content website vote on very fewer articles, which gives the collusive group even more power over the content of the front page.  Our simulation took that into consideration when determining how user's voted on content.  The conclusion is that reddit's PageRank algorithm does not sufficiently offer protection against colluding groups or cliques of people.  Users can gain a disproportionate amount of influence over the content of the front page, particularly tbe front pages of smaller subreddits (however, large social content sites are still very susceptible - 2000 likeminded users could conciously alter the entire makeup of the front page.
+
+\section{Suggestions for Future Work}
+
+One of the aspects that we did not fully study was the \emph{quality} of posts that reach the front page. That is, we carefully studied the distribution of biased vs. unbiased posts which reached the front page, but did not keep track of any ``total front page score" based on the truthful views of unbiased users. By the criteria of biased vs. unbiased posts, an effective algorithm would be to just randomly chose the stories on the front page. However, this algorithm would not result in a high quality front page. Essentially, there is a tradeoff that should be studied between the attempts to reduce collusion and the desire to have a high quality front page.
 
 \newpage
 
