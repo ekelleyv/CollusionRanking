@@ -36,7 +36,6 @@ nosetests.xml
 
 # Latex
 
-*.pdf
 *.aux
 *.glo
 *.idx
