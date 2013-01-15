@@ -8,8 +8,40 @@
 \usepackage{amssymb}
 \usepackage{epstopdf}
 \usepackage{setspace}
+
+%Code Highlighting
+\usepackage{listings}
+\usepackage{color}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{ %
+  backgroundcolor=\color{white},  % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                % sets automatic line breaking
+  captionpos=b,                   % sets the caption-position to bottom
+  commentstyle=\color{dkgreen},   % comment style
+ % frame=single,                   % adds a frame around the code
+  keywordstyle=\color{blue},      % keyword style
+  language=Python,                % the language of the code
+  morekeywords={*,...},           % if you want to add more keywords to the set
+  numbers=left,                   % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                  % how far the line-numbers are from the code
+  numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+  rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,               % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,         % underline spaces within strings only
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  stepnumber=1,                   % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{mauve},      % string literal style
+  tabsize=2,                      % sets default tabsize to 2 spaces
+}
+
+
 \usepackage{url}
-\onehalfspacing
+%\onehalfspacing
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 
 \title{Reducing The Impact of Cliques in Social News Sites}
@@ -24,22 +56,299 @@
 
 % Background and Motivation
 \section{Motivation}
+In 2004, Digg launched as one of the first  popularity news display systems on the Web. Instead of just a content delivery site, Digg was a platform where anyone could submit a story and users voted to determine the order of the displayed stories. In the following years, similar sites, such as Reddit, StumbleUpon, and Hacker News, were created and have since seen a huge rise in popularity.
 
-\section{Simulation Platform}
+However, due to the nature of their voting systems, these sites are highly susceptible to collusion. There have been several instances of small groups of users, typically with strong political affiliations, colluding to ``bury" or ``downvote" content they disagree with and ``digg" or ``upvote" content that aligns with their politcal views. In 2007, Muhammad Saleem, a researcher for the Search Engine Journal, published an article titled  ``The Bury Brigade Exists, and Here's My Proof," showing that there were groups of users on Digg which were ``hard at work burying any content that doesn't suit [their] ideology."\cite{wired, sej}
+
+Later, in 2010, AltNet published a story about the ``Digg Patriots," a small group of conservative users that were ``able to bury over 90\% of the articles by certain users and websites submitted within 1-3 hours" and promote their own stories to the front page.\cite{alter net} These users would gather on Yahoo Groups in order to collude on their voting.
+
+This behavior was not limited to Digg. In 2012, The Daily Dot published a story about ``LibertyBot," a bot that would use many accounts to downvote any posts seen as anti-libertarian or, more specifically, anti-Ron Paul.\cite{dailydot} These small groups of users are having a disproportionate impact on the content displayed on the front page of these social news sites.
+
+\section{Goal}
+
+Our goal is to find an algorithm that will reduce the impact of these cliques on the ranking of stories.This algorithm must be able to perform online with a large number of users and posts. Additionally, this algorithm should produce a ranking that places the most highly voted stories to the top, while diminishing the influence of biased cliques.
 
 
-\section{Current Method}
+\section{Algorithms}
 
-\section{Sampling Method}
+In the Reddit ranking algorithm, the difference between the number of up votes and down votes matters more than the number of up votes.  The algorithm first subtracts downs from ups and uses this difference through the rest of the algorithm.  The algorithm also takes into consideration the time of the post submission.  Content that is posted earlier on have a lower ranking score.  (cite source)
 
-\section{Noisy Method}
+\vspace{.2cm}
 
-\section{Results}
+There are two well known algorithms for eliminating the power of collusive groups over a voting system.  The  first relies on random sampling.  A random sample of votes will be taken from the total number of votes, and this sample will be extrapolated out to determine the total number of up and down votes.  This is further discussed in this document****.  We adjusted the sampling method  to work for both up and down votes, and extrapolated the data.  Our simulation and subsequent proofs show the effectiveness of this method in terms of preventing colluding groups from dominating the front page.  The next algorithm introduces noise into voting systems, and is originally discussed in the listed website****.  Our implementation takes into consideration both up and down votes and randomly flips the vote with some fixed probability.  It is also more successful than the traditional Reddit PageRank algorithm in correcting for colluding voting blocks.
 
-\section{Conclusion}
+\section{Simulations}
+
+We simulated the data over what would be an equivalent of 1 day, with 100, 300, and 1000 users.  The simulations creates posts every minute and go throughs all of the users.  The users can look at the last 3 hours worth of posts on the website (since users would rarely in real life go through many more posts than this).  Users can either consciously not vote, up vote, or down vote a post.  Once the user does this, the user will never vote again on the same post.  Every thirty minutes the page rank algorithms of Reddit, Noisy, and Sampling are called which determine which pages make the front page.  Front page is formally defined as the top 30 posts at any given time on our simulated social content website.  The number of biased posts that make the front page is calculated for each of the simulations, and the following section describes proofs from this data.
+
+\vspace{.2cm}
+
+We also ran simulations where there was only one collusive group.  In 2010, the website Digg discovered a group of users called the Digg Patriots who gained a disproportionate amount of influence over the content of the website.  We also looked at how our modified page rank algorithms handled this situation.
+
+\section{Analysis}
+
+Our simulation represents a binomial distribution of posts on the front page.  If a post on the front page is non biased, the random variable is 1, otherwise it is 0.  Our simulation calculates which posts have reached the front page 47 times for the 24 hour period (once every half hour excluding the starting time).  There are 30 posts on the front page at each interval in time, so there are $47 * 30 = 1410$ total post slots that are considered over the course of the simulation.  Our null hypothesis ($H_0$) is that collusive groups or cliques do not have excessive influence on gettings posts to the front page.  Our alternative hypothesis ($H_A$) is that collusive groups do have excessive influence in getting posts to the front page.  We will start by looking at the case where there are 100 users, 5 belong to one clique, 5 to another, and 85\% of posts are not biased one way or the other.  For $H_0$:
+
+$$H_0: \mu \geq 1198.5$$
+$$H_A: \mu < 1198.5$$
+
+\begin{center}
+n = 1410, p = .85 \\
+$\mu = np = 1410 (.85) = 1198.5$ \\
+$\sigma^2 = np(1 - p) = 1410 (.85)(.15) = 179.8$ \\
+\end{center}
+
+After 50 trials with 100 users:
+
+$$\mu_{reddit} = 766$$
+$$\mu_{sampling} = 1004$$
+$$\mu_{noisy} = 947$$
+
+$$SE = \sqrt{\frac{\sigma^2}{n}} = \sqrt{\frac{179.8}{50}} = 1.896$$
+
+$$Z_{reddit} = \frac{1198.5 - 766}{1.896} = 228.4$$
+
+$$Z_{sampling} = \frac{1198.5 - 1004}{1.896} = 102.6$$
+
+$$Z_{noisy} = \frac{1198.5 - 947}{1.896} = 132.7$$
+
+All three of these Z-indexes confirm that with 100 users, and 10 belonging to cliques, we can confidently replace the null hypothesis with the alternative hypothesis.  Even with our algorithms, the probability of belonging to a clique is too great that the front page is still overly populated with their posts.  However, noisy and sampling still do better than reddit in terms of preventing posts from cliques from filling up the front page.  For the following proofs, the null hypothesis ($H_0$) is that there is no difference in preventing cliques posts between the reddit and sampling/noisy algorithms.  The alternative hypothesis ($H_A$) is that sampling does better than reddit.  
+
+$$H_0: \mu_{reddit} = \mu_{sampling}$$
+$$H_A: \mu_{reddit} < \mu_{sampling}$$
+
+The means were determined for each of the 50 runs.  We can create a $\mu_{diff}$ by subtracting means from the same run.  First we will compare the reddit and sampling algorithms.
+
+$$\mu_{diff} = 19.8$$
+$$\sigma_{diff} = 73.24$$
+$$SE_{diff} = 10.36$$
+$$Z_{diff} = \frac{19.8 - 0}{10.36}$$
+$$Z_{diff} = 1.91$$
+
+We can say with over 97\% confidence that the null hypothesis is wrong and that sampling works better than the reddit algorithm.  
+
+\vspace{.2cm}
+
+Next, we will compare the reddit and noisy algorithms.
+
+$$H_0: \mu_{reddit} = \mu_{noisy}$$
+$$H_A: \mu_{reddit} < \mu_{noisy}$$
+
+$$\mu_{diff} = 15.05$$
+$$\sigma_{diff} = 55.81$$
+$$SE_{diff} = 7.89$$
+$$Z_{diff} = \frac{15.05 - 0}{7.89}$$
+$$Z_{diff} = 1.91$$
+
+We can say with over 97\% confidence that the null hypothesis is wrong and that sampling works better than the reddit algorithm.
+
+\vspace{.2cm}
+
+Lastly, we will compare the sampling and noisy algorithms, with the alternative hypothesis that the sampling algorithm is better than the noisy algorithm.
+
+$$H_0: \mu_{noisy} = \mu_{sampling}$$
+$$H_A: \mu_{noisy} < \mu_{sampling}$$
+
+$$\mu_{diff} = 4.75$$
+$$\sigma_{diff} = 18.37$$
+$$SE_{diff} = 2.60$$
+$$Z_{diff} = \frac{4.75 - 0}{2.60}$$
+$$Z_{diff} = 1.83$$
+
+The p-value for this test is .0336, so we can say with over 96\% confidence that sampling is better than the reddit algorithm.
+
+\vspace{.4cm}
+
+We also did two other tests (with 300 and 1000 users), and varied the number of users belonging to cliques.  For the test with 300 users, we had 5% of users belonging to two different cliques (2.5% in each) and 4% of posts belonging to cliques.  The expected number of posts on the front page belonging to cliques is:
+
+\begin{center}
+n = 1410, p = .96
+$\mu = np = 1410 (.96) = 1353.6$ \\
+$\sigma^2 = np(1 - p) = 1410 (.96)(.04) = 54.14$ \\
+\end{center}
+
+First, to see if colluding groups have disproportionate amount of influence (the alternative and null hypotheses are the same):
+
+$$H_0: \mu \geq 1353.6$$
+$$H_A: \mu < 1353.6$$
+
+$$\mu_{reddit} = 1236$$
+$$\mu_{sampling} = 1301$$
+$$\mu_{noisy} = 1286$$
+
+$$SE = \sqrt{\frac{\sigma^2}{n}} = \sqrt{\frac{54.14}{50}} = 1.041$$
+
+$$Z_{reddit} = \frac{1353.6 - 1236}{1.041} = 112.97$$
+
+$$Z_{sampling} = \frac{1353.6 - 1301}{1.041} = 50.53$$
+
+$$Z_{noisy} = \frac{1353.6 - 1286}{1.041} = 64.94$$
+
+These z-indexes are large enough that we can conclude that colluding groups still have a disproportionate amount of influence.  However, again we want to see which (if any) of these algorithms is the best.
+
+We will start by comparing the sampling and reddit algorithms.  Our null hypothesis is that reddit and sampling are comparable, and our alternative hypothesis is that sampling is better.
+
+$$H_0: \mu_{reddit} = \mu_{sampling}$$
+$$H_A: \mu_{reddit} < \mu_{sampling}$$
+
+$$\mu_{diff} = 5.39$$
+$$\sigma_{diff} = 20.1$$
+$$SE_{diff} = 2.84$$
+$$Z_{diff} = \frac{5.39 - 0}{2.84}$$
+$$Z_{diff} = 1.90$$
+
+We can assert with over 97\% confidence that our null hypothesis is wrong and the alternative, that sampling is better than reddit's alogirthm.
+
+\vspace{.2cm}
+
+Next, we will compare the reddit and noisy PageRank algorithms, with our null and alternative hypotheses the same as above.
+
+$$H_0: \mu_{reddit} = \mu_{noisy}$$
+$$H_A: \mu_{reddit} < \mu_{noisy}$$
+
+$$\mu_{diff} = 4.15$$
+$$\sigma_{diff} = 15.81$$
+$$SE_{diff} = 2.24$$
+$$Z_{diff} = \frac{4.15 - 0}{2.24}$$
+$$Z_{diff} = 1.85$$
+
+This gives a p-value of .0322, so we can say with over 96\% confidence that the noisy algorithm is better than the reddit algorithm with 300 users.
+
+\vspace{.2cm}
+
+Lastly, we will compare the sampling and noisy algorithms, with our null and alternative hypotheses the same as above.
+
+$$H_0: \mu_{noisy} = \mu_{sampling}$$
+$$H_A: \mu_{noisy} < \mu_{sampling}$$
+
+$$\mu_{diff} = 1.24$$
+$$\sigma_{diff} = 5.58$$
+$$SE_{diff} = .79$$
+$$Z_{diff}  = \frac{1.24 - 0}{.79}$$
+$$Z_{diff} = 1.57$$
+
+This gives a p-value of over .05.  We cannot therefore conclude that the sampling algorithm is better than the noisy algorithm with 95\% confidence.  For 300 users, we do not have conclusive evidence if sampling or noisy is a better algorithm.
+
+\vspace{.4cm}
+
+We did an additional test with 1000 users, where the probability of any given post being biased is 96\%.  Again, we start by determining if collusive groups have a disproportionate amount of influence over the content that reaches the front page.
+
+\begin{center}
+n = 1410, p = .96
+$\mu = np = 1410 (.96) = 1353.6$ \\
+$\sigma^2 = np(1 - p) = 1410 (.96)(.04) = 54.14$ \\
+\end{center}
+
+First, to see if colluding groups have disproportionate amount of influence (the alternative and null hypotheses are the same):
+
+$$H_0: \mu \geq 1353.6$$
+$$H_A: \mu < 1353.6$$
+
+$$\mu_{reddit} = 1140$$
+$$\mu_{sampling} = 1253$$
+$$\mu_{noisy} = 1228$$
+
+$$SE = \sqrt{\frac{\sigma^2}{n}} = \sqrt{\frac{54.14}{50}} = 1.041$$
+
+$$Z_{reddit} = \frac{1353.6 - 1140}{1.041} = 205.2$$
+
+$$Z_{sampling} = \frac{1353.6 - 1253}{1.041} = 96.64$$
+
+$$Z_{noisy} = \frac{1353.6 - 1228}{1.041} = 120.65$$
+
+These z-indexes also show that collusive groups still have a considerable influence on what content makes the front page.  Next, as above, we will determine if either of these two new algorithms is more successful in keeping the front page free of biased content.
+
+We will start by comparing the sampling and reddit algorithms.  Our null hypothesis is that reddit and sampling are comparable, and our alternative hypothesis is that sampling is better.
+
+$$H_0: \mu_{reddit} = \mu_{sampling}$$
+$$H_A: \mu_{reddit} < \mu_{sampling}$$
+
+$$\mu_{diff} = 9.39$$
+$$\sigma_{diff} = 33.25$$
+$$SE_{diff} = 4.70$$
+$$Z_{diff} = \frac{9.39 - 0}{4.70}$$
+$$Z_{diff} = 2.00$$
+
+We can assert with over 97\% confidence that our null hypothesis is wrong and the alternative, that sampling is better than reddit's alogirthm.
+
+\vspace{.2cm}
+
+Next, we will compare the reddit and noisy PageRank algorithms, with our null and alternative hypotheses the same as above.
+
+$$H_0: \mu_{reddit} = \mu_{noisy}$$
+$$H_A: \mu_{reddit} < \mu_{noisy}$$
+
+$$\mu_{diff} = 7.36$$
+$$\sigma_{diff} = 26.25$$
+$$SE_{diff} = 3.71$$
+$$Z_{diff} = \frac{7.36 - 0}{3.71}$$
+$$Z_{diff} = 1.98$$
+
+We can say with over 97\% confidence that the noisy algorithm is better than the reddit algorithm with 300 users.
+
+\vspace{.2cm}
+
+Lastly, we will compare the sampling and noisy algorithms, with our null and alternative hypotheses the same as above.
+
+$$H_0: \mu_{noisy} = \mu_{sampling}$$
+$$H_A: \mu_{noisy} < \mu_{sampling}$$
+
+$$\mu_{diff} = 2.02$$
+$$\sigma_{diff} = 7.99$$
+$$SE_{diff} = 1.13$$
+$$Z_{diff}  = \frac{2.02 - 0}{1.13}$$
+$$Z_{diff} = 1.79$$
+
+This gives a p-value just under .04. We can therefore justify saying that the sampling algorithm better eliminates the influence of cliques then the noisy algortihm.
+
+\section{Discussion and Conclusion}
+
+Social content sites are susceptible to collusive groups that try to manipulate which posts reach the front page.  Even with the two methods that are collusion proof, groups can still gain a disproportionate number of front page posts.  The trouble arises from the fact the algorithms are run online - the interactions between users and how they will vote in the future are unknown.  In my voting schemes, all the votes are tallied at once, but on a social content website, votes come in at different intervals.  A page might make the front page shortly after being posted, with less than 10\% of the total websites users seeing the content.  Another issue with collusive groups is that their members tend to vote in force - on both posts that favor and oppose their opinions.  Casual users of a social content website vote on very fewer articles, which gives the collusive group even more power over the content of the front page.  Our simulation took that into consideration when determining how user's voted on content.  The conclusion is that reddit's PageRank algorithm does not sufficiently offer protection against colluding groups or cliques of people.  Users can gain a disproportionate amount of influence over the content of the front page, particularly tbe front pages of smaller subreddits (however, large social content sites are still very susceptible - 2000 likeminded users could conciously alter the entire makeup of the front page.
+
+\newpage
 
 \section{Appendix}
 
+\subsection{main.py}
+Creates users and posts, runs simulation, and prints results.
+ 
+\lstinputlisting{../main.py}
+
+
+\newpage
+
+\subsection{user.py}
+User class. Contains voting logic.
+
+\lstinputlisting{../user.py}
+
+\newpage
+
+\subsection{post.py}
+Post class. 
+
+\lstinputlisting{../post.py}
+
+\newpage
+
+\subsection{reddit.py}
+Actual Reddit ranking algorithm.
+
+\lstinputlisting{../reddit.py}
+
+\newpage
+
+\subsection{noisy.py}
+Noisy algorithm.
+
+\lstinputlisting{../noisy.py}
+
+\newpage
+
+\subsection{sampling.py}
+Sampling algorithm.
+
+\lstinputlisting{../sampling.py}
 
 
 \newpage
